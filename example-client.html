@@ -1,0 +1,784 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Pixel Poll - Test Client</title>
+        <style>
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+            }
+
+            body {
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .container {
+                max-width: 800px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            }
+
+            h1 {
+                color: #333;
+                margin-bottom: 10px;
+            }
+
+            .subtitle {
+                color: #666;
+                margin-bottom: 30px;
+            }
+
+            .section {
+                margin-bottom: 30px;
+            }
+
+            .section-title {
+                font-size: 18px;
+                font-weight: 600;
+                margin-bottom: 15px;
+                color: #444;
+                border-bottom: 2px solid #667eea;
+                padding-bottom: 5px;
+            }
+
+            .form-group {
+                margin-bottom: 15px;
+            }
+
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 500;
+                color: #555;
+            }
+
+            input,
+            select,
+            textarea {
+                width: 100%;
+                padding: 10px;
+                border: 2px solid #ddd;
+                border-radius: 6px;
+                font-size: 14px;
+                transition: border-color 0.3s;
+            }
+
+            input:focus,
+            select:focus,
+            textarea:focus {
+                outline: none;
+                border-color: #667eea;
+            }
+
+            button {
+                background: #667eea;
+                color: white;
+                border: none;
+                padding: 12px 24px;
+                border-radius: 6px;
+                font-size: 14px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.3s;
+                margin-right: 10px;
+                margin-bottom: 10px;
+            }
+
+            button:hover {
+                background: #5568d3;
+            }
+
+            button:disabled {
+                background: #ccc;
+                cursor: not-allowed;
+            }
+
+            button.danger {
+                background: #dc3545;
+            }
+
+            button.danger:hover {
+                background: #c82333;
+            }
+
+            button.success {
+                background: #28a745;
+            }
+
+            button.success:hover {
+                background: #218838;
+            }
+
+            .status {
+                padding: 15px;
+                border-radius: 6px;
+                margin-bottom: 20px;
+                font-weight: 500;
+            }
+
+            .status.disconnected {
+                background: #f8d7da;
+                color: #721c24;
+                border: 1px solid #f5c6cb;
+            }
+
+            .status.connected {
+                background: #d4edda;
+                color: #155724;
+                border: 1px solid #c3e6cb;
+            }
+
+            .log {
+                background: #f8f9fa;
+                border: 1px solid #dee2e6;
+                border-radius: 6px;
+                padding: 15px;
+                max-height: 300px;
+                overflow-y: auto;
+                font-family: "Courier New", monospace;
+                font-size: 12px;
+            }
+
+            .log-entry {
+                padding: 5px;
+                margin-bottom: 5px;
+                border-left: 3px solid transparent;
+            }
+
+            .log-entry.info {
+                border-left-color: #17a2b8;
+            }
+
+            .log-entry.success {
+                border-left-color: #28a745;
+            }
+
+            .log-entry.error {
+                border-left-color: #dc3545;
+            }
+
+            .log-entry.received {
+                border-left-color: #667eea;
+                background: #f0f2ff;
+            }
+
+            .question-display {
+                background: #f8f9fa;
+                border: 2px solid #667eea;
+                border-radius: 6px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .question-text {
+                font-size: 20px;
+                font-weight: 600;
+                margin-bottom: 15px;
+                color: #333;
+            }
+
+            .answer-option {
+                background: white;
+                border: 2px solid #ddd;
+                border-radius: 6px;
+                padding: 12px;
+                margin-bottom: 10px;
+                cursor: pointer;
+                transition: all 0.3s;
+            }
+
+            .answer-option:hover {
+                border-color: #667eea;
+                background: #f0f2ff;
+            }
+
+            .answer-option.selected {
+                border-color: #667eea;
+                background: #667eea;
+                color: white;
+            }
+
+            .results {
+                margin-top: 20px;
+            }
+
+            .result-item {
+                background: white;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                padding: 10px;
+                margin-bottom: 10px;
+            }
+
+            .result-bar {
+                background: #667eea;
+                height: 20px;
+                border-radius: 4px;
+                margin-top: 5px;
+                transition: width 0.5s;
+            }
+
+            .standings {
+                margin-top: 20px;
+            }
+
+            .standing-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px;
+                background: white;
+                border: 1px solid #ddd;
+                border-radius: 6px;
+                margin-bottom: 5px;
+            }
+
+            .standing-item:first-child {
+                background: gold;
+                font-weight: 600;
+            }
+
+            .hidden {
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>🎯 Pixel Poll - Test Client</h1>
+            <p class="subtitle">
+                Testing WebSocket connections and real-time polling
+            </p>
+
+            <!-- Connection Status -->
+            <div id="status" class="status disconnected">Disconnected</div>
+
+            <!-- Connection Form -->
+            <div id="connectionSection" class="section">
+                <div class="section-title">Connection</div>
+                <div class="form-group">
+                    <label>Room Name:</label>
+                    <input
+                        type="text"
+                        id="roomName"
+                        placeholder="Enter room name"
+                        value="test-room"
+                    />
+                </div>
+                <div class="form-group">
+                    <label>Username:</label>
+                    <input
+                        type="text"
+                        id="username"
+                        placeholder="Enter username"
+                        value="testuser"
+                    />
+                </div>
+                <button onclick="connect()">Connect to Room</button>
+                <button onclick="disconnect()" class="danger">
+                    Disconnect
+                </button>
+            </div>
+
+            <!-- Creator Controls -->
+            <div id="creatorControls" class="section hidden">
+                <div class="section-title">Creator Controls</div>
+
+                <div class="form-group">
+                    <label>Question Type:</label>
+                    <select id="questionType" onchange="toggleQuestionFields()">
+                        <option value="poll">Poll</option>
+                        <option value="quiz">Quiz</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Question:</label>
+                    <input
+                        type="text"
+                        id="questionText"
+                        placeholder="Enter your question"
+                        value="What is your favorite programming language?"
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label>Answers (one per line):</label>
+                    <textarea
+                        id="answers"
+                        rows="4"
+                        placeholder="Enter answers, one per line"
+                    >
+JavaScript
+Python
+Rust
+Go</textarea
+                    >
+                </div>
+
+                <div id="quizFields" class="hidden">
+                    <div class="form-group">
+                        <label>Correct Answer (index, 0-based):</label>
+                        <input
+                            type="number"
+                            id="correctAnswer"
+                            value="0"
+                            min="0"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Starting Points:</label>
+                        <input
+                            type="number"
+                            id="startingPoints"
+                            value="1000"
+                            min="0"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Decay Rate (points/second):</label>
+                        <input
+                            type="number"
+                            id="decayRate"
+                            value="10"
+                            min="0"
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label>Negative Points (wrong answer):</label>
+                        <input
+                            type="number"
+                            id="negativePoints"
+                            value="50"
+                            min="0"
+                        />
+                    </div>
+                </div>
+
+                <button onclick="startQuestion()" class="success">
+                    Start Question
+                </button>
+                <button onclick="endQuestion()" class="danger">
+                    End Question
+                </button>
+                <button onclick="endRoom()" class="danger">End Room</button>
+            </div>
+
+            <!-- Question Display -->
+            <div id="questionDisplay" class="section hidden">
+                <div class="section-title">Current Question</div>
+                <div class="question-display">
+                    <div class="question-text" id="currentQuestion"></div>
+                    <div id="answerOptions"></div>
+                </div>
+            </div>
+
+            <!-- Results Display -->
+            <div id="resultsDisplay" class="section hidden">
+                <div class="section-title">Results</div>
+                <div id="resultsContent"></div>
+            </div>
+
+            <!-- Message Log -->
+            <div class="section">
+                <div class="section-title">Message Log</div>
+                <button onclick="clearLog()">Clear Log</button>
+                <div id="log" class="log"></div>
+            </div>
+        </div>
+
+        <script>
+            let ws = null;
+            let isCreator = false;
+            let selectedAnswer = null;
+
+            function log(message, type = "info") {
+                const logDiv = document.getElementById("log");
+                const entry = document.createElement("div");
+                entry.className = `log-entry ${type}`;
+                const timestamp = new Date().toLocaleTimeString();
+                entry.textContent = `[${timestamp}] ${message}`;
+                logDiv.appendChild(entry);
+                logDiv.scrollTop = logDiv.scrollHeight;
+            }
+
+            function clearLog() {
+                document.getElementById("log").innerHTML = "";
+            }
+
+            function updateStatus(connected) {
+                const status = document.getElementById("status");
+                if (connected) {
+                    status.className = "status connected";
+                    status.textContent = `Connected to room: ${document.getElementById("roomName").value} as ${document.getElementById("username").value}`;
+                } else {
+                    status.className = "status disconnected";
+                    status.textContent = "Disconnected";
+                }
+            }
+
+            function connect() {
+                const roomName = document
+                    .getElementById("roomName")
+                    .value.trim();
+                const username = document
+                    .getElementById("username")
+                    .value.trim();
+
+                if (!roomName || !username) {
+                    alert("Please enter both room name and username");
+                    return;
+                }
+
+                const wsUrl = `ws://localhost:3000/ws/room/${roomName}?username=${username}`;
+                log(`Connecting to ${wsUrl}...`, "info");
+
+                ws = new WebSocket(wsUrl);
+
+                ws.onopen = () => {
+                    log("WebSocket connection opened", "success");
+                    updateStatus(true);
+                };
+
+                ws.onmessage = (event) => {
+                    const message = JSON.parse(event.data);
+                    log(
+                        `Received: ${JSON.stringify(message, null, 2)}`,
+                        "received",
+                    );
+                    handleMessage(message);
+                };
+
+                ws.onerror = (error) => {
+                    log("WebSocket error occurred", "error");
+                    console.error(error);
+                };
+
+                ws.onclose = () => {
+                    log("WebSocket connection closed", "info");
+                    updateStatus(false);
+                    document
+                        .getElementById("creatorControls")
+                        .classList.add("hidden");
+                    document
+                        .getElementById("questionDisplay")
+                        .classList.add("hidden");
+                    document
+                        .getElementById("resultsDisplay")
+                        .classList.add("hidden");
+                };
+            }
+
+            function disconnect() {
+                if (ws) {
+                    ws.close();
+                    ws = null;
+                }
+            }
+
+            function handleMessage(message) {
+                switch (message.type) {
+                    case "JoinError":
+                        alert(`Cannot join room: ${message.reason}`);
+                        disconnect();
+                        break;
+
+                    case "UserInfo":
+                        log(
+                            `Connected as ${message.username} (creator: ${message.isCreator})`,
+                            "success",
+                        );
+                        log(
+                            `Current users in room: ${message.currentUsers.join(", ")}`,
+                            "info",
+                        );
+                        isCreator = message.isCreator;
+                        if (isCreator) {
+                            document
+                                .getElementById("creatorControls")
+                                .classList.remove("hidden");
+                            log(
+                                "You are the room creator - you have special permissions",
+                                "success",
+                            );
+                        }
+                        break;
+
+                    case "UserJoined":
+                        log(`User joined: ${message.username}`, "success");
+                        break;
+
+                    case "UserLeft":
+                        log(`User left: ${message.username}`, "info");
+                        break;
+
+                    case "QuestionStarted":
+                        displayQuestion(message.question);
+                        document
+                            .getElementById("resultsDisplay")
+                            .classList.add("hidden");
+                        break;
+
+                    case "QuestionEnded":
+                        displayResults(message.results);
+                        document
+                            .getElementById("questionDisplay")
+                            .classList.add("hidden");
+                        break;
+
+                    case "RoomEnded":
+                        alert(`Room ended: ${message.reason}`);
+                        if (message.standings) {
+                            displayStandings(message.standings);
+                        }
+                        disconnect();
+                        break;
+                }
+            }
+
+            function displayQuestion(question) {
+                document
+                    .getElementById("questionDisplay")
+                    .classList.remove("hidden");
+                document.getElementById("currentQuestion").textContent =
+                    question.question;
+
+                const optionsDiv = document.getElementById("answerOptions");
+                optionsDiv.innerHTML = "";
+                selectedAnswer = null;
+
+                question.answers.forEach((answer, index) => {
+                    const option = document.createElement("div");
+                    option.className = "answer-option";
+                    option.textContent = `${index + 1}. ${answer}`;
+                    option.onclick = () => selectAnswer(index);
+                    optionsDiv.appendChild(option);
+                });
+
+                const submitBtn = document.createElement("button");
+                submitBtn.textContent = "Submit Answer";
+                submitBtn.onclick = submitAnswer;
+                submitBtn.style.marginTop = "15px";
+                optionsDiv.appendChild(submitBtn);
+            }
+
+            function selectAnswer(index) {
+                selectedAnswer = index;
+                const options = document.querySelectorAll(".answer-option");
+                options.forEach((opt, i) => {
+                    if (i === index) {
+                        opt.classList.add("selected");
+                    } else {
+                        opt.classList.remove("selected");
+                    }
+                });
+            }
+
+            function submitAnswer() {
+                if (selectedAnswer === null) {
+                    alert("Please select an answer");
+                    return;
+                }
+
+                const message = {
+                    type: "SubmitAnswer",
+                    answer: selectedAnswer,
+                };
+
+                ws.send(JSON.stringify(message));
+                log(`Submitted answer: ${selectedAnswer}`, "success");
+            }
+
+            function displayResults(results) {
+                document
+                    .getElementById("resultsDisplay")
+                    .classList.remove("hidden");
+                const content = document.getElementById("resultsContent");
+                content.innerHTML = "";
+
+                const questionDiv = document.createElement("div");
+                questionDiv.innerHTML = `<strong>Question:</strong> ${results.question}`;
+                content.appendChild(questionDiv);
+
+                if (results.type === "quiz") {
+                    const correctDiv = document.createElement("div");
+                    correctDiv.innerHTML = `<strong>Correct Answer:</strong> ${results.answers[results.correctAnswer]}`;
+                    correctDiv.style.color = "#28a745";
+                    correctDiv.style.fontWeight = "600";
+                    correctDiv.style.marginTop = "10px";
+                    content.appendChild(correctDiv);
+
+                    const scoreDiv = document.createElement("div");
+                    scoreDiv.innerHTML = `<strong>Your Score:</strong> ${results.userScore} points`;
+                    scoreDiv.style.fontSize = "18px";
+                    scoreDiv.style.marginTop = "10px";
+                    content.appendChild(scoreDiv);
+                }
+
+                const resultsDiv = document.createElement("div");
+                resultsDiv.className = "results";
+                resultsDiv.innerHTML = "<strong>Votes:</strong>";
+                content.appendChild(resultsDiv);
+
+                const maxVotes = Math.max(...results.votes);
+                results.answers.forEach((answer, index) => {
+                    const resultItem = document.createElement("div");
+                    resultItem.className = "result-item";
+
+                    const isCorrect =
+                        results.type === "quiz" &&
+                        index === results.correctAnswer;
+                    const label = document.createElement("div");
+                    label.textContent = `${answer}: ${results.votes[index]} votes ${isCorrect ? "✓" : ""}`;
+                    if (isCorrect) {
+                        label.style.color = "#28a745";
+                        label.style.fontWeight = "600";
+                    }
+                    resultItem.appendChild(label);
+
+                    const bar = document.createElement("div");
+                    bar.className = "result-bar";
+                    const percentage =
+                        maxVotes > 0
+                            ? (results.votes[index] / maxVotes) * 100
+                            : 0;
+                    bar.style.width = percentage + "%";
+                    resultItem.appendChild(bar);
+
+                    resultsDiv.appendChild(resultItem);
+                });
+
+                if (results.standings) {
+                    displayStandings(results.standings);
+                }
+            }
+
+            function displayStandings(standings) {
+                const content = document.getElementById("resultsContent");
+
+                const standingsDiv = document.createElement("div");
+                standingsDiv.className = "standings";
+                standingsDiv.innerHTML =
+                    '<strong style="display: block; margin-top: 20px; margin-bottom: 10px;">Standings:</strong>';
+
+                standings.forEach((standing, index) => {
+                    const item = document.createElement("div");
+                    item.className = "standing-item";
+                    item.innerHTML = `
+                    <span>${index + 1}. ${standing.username}</span>
+                    <span>${standing.points} points</span>
+                `;
+                    standingsDiv.appendChild(item);
+                });
+
+                content.appendChild(standingsDiv);
+            }
+
+            function toggleQuestionFields() {
+                const type = document.getElementById("questionType").value;
+                const quizFields = document.getElementById("quizFields");
+
+                if (type === "quiz") {
+                    quizFields.classList.remove("hidden");
+                } else {
+                    quizFields.classList.add("hidden");
+                }
+            }
+
+            function startQuestion() {
+                const type = document.getElementById("questionType").value;
+                const questionText = document
+                    .getElementById("questionText")
+                    .value.trim();
+                const answersText = document
+                    .getElementById("answers")
+                    .value.trim();
+
+                if (!questionText || !answersText) {
+                    alert("Please enter question and answers");
+                    return;
+                }
+
+                const answers = answersText
+                    .split("\n")
+                    .map((a) => a.trim())
+                    .filter((a) => a);
+
+                if (answers.length < 2) {
+                    alert("Please provide at least 2 answers");
+                    return;
+                }
+
+                const question = {
+                    type: type,
+                    question: questionText,
+                    answers: answers,
+                };
+
+                if (type === "quiz") {
+                    question.correctAnswer = parseInt(
+                        document.getElementById("correctAnswer").value,
+                    );
+                    question.startingPoints = parseInt(
+                        document.getElementById("startingPoints").value,
+                    );
+                    question.decayRate = parseFloat(
+                        document.getElementById("decayRate").value,
+                    );
+                    question.negativePoints = parseInt(
+                        document.getElementById("negativePoints").value,
+                    );
+
+                    if (
+                        question.correctAnswer < 0 ||
+                        question.correctAnswer >= answers.length
+                    ) {
+                        alert("Invalid correct answer index");
+                        return;
+                    }
+                }
+
+                const message = {
+                    type: "StartQuestion",
+                    question: question,
+                };
+
+                ws.send(JSON.stringify(message));
+                log("Started question", "success");
+            }
+
+            function endQuestion() {
+                const message = {
+                    type: "EndQuestion",
+                };
+                ws.send(JSON.stringify(message));
+                log("Ended question", "info");
+            }
+
+            function endRoom() {
+                if (
+                    confirm(
+                        "Are you sure you want to end the room? All users will be disconnected.",
+                    )
+                ) {
+                    const message = {
+                        type: "EndRoom",
+                    };
+                    ws.send(JSON.stringify(message));
+                    log("Ended room", "info");
+                }
+            }
+        </script>
+    </body>
+</html>
